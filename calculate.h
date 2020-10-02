@@ -6,18 +6,20 @@
 #include <QPushButton>
 #include <QDebug>
 #include <QMap>
+#include <cmath>
 
 class Calculate : public QObject
 {
   Q_OBJECT
 private:
-  double first_number;
-  double second_number;
-  double result;
-  bool is_operation_possible;
+  QString first_number;
+  QString second_number;
   QString operation;
-
+  QString result;
+  bool is_operation_possible;
   QMap<QString, std::function<double(double, double)>> operation_function;
+
+  void addDigit(QString &number, const QString &input);
 public:
   explicit Calculate(QObject *parent = nullptr);
 
