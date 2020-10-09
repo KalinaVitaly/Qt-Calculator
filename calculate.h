@@ -20,6 +20,7 @@ private:
   QMap<QString, std::function<double(double, double)>> operation_function;
 
   void addDigit(QString &number, const QString &input);
+  void setColor(QPalette & palette, QColor & color, QPushButton & button, QChar symbol);
 public:
   explicit Calculate(QObject *parent = nullptr);
 
