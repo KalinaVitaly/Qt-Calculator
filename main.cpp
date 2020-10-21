@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
   QWidget *w = new QWidget();
   QGridLayout *layout = new QGridLayout();
   QLabel *label = new QLabel;
-  Calculate *calc = new Calculate;
+  Calculate *calc = new Calculate(label);
   QPalette pallete;
   QColor color;
 
@@ -27,7 +27,6 @@ int main(int argc, char *argv[])
   pallete.setColor(QPalette::WindowText, color);
   w->setPalette(pallete);
   w->setAutoFillBackground(true);
- // label->setStyleSheet(QString("font-size: %1px").arg(100));
 
   QObject::connect(calc, SIGNAL(setNumber(const QString &)),
                    label, SLOT(setText(const QString &)));

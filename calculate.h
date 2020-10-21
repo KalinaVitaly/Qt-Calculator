@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QLayout>
+#include <QLabel>
 #include <QPushButton>
 #include <QDebug>
 #include <QMap>
@@ -18,6 +19,7 @@ private:
   QString second_number;
   QString operation;
   QString result;
+  QLabel *label;
   bool is_operation_possible;
   QMap<QString, std::function<int(int, int)>> operation_function;
 
@@ -28,7 +30,7 @@ private:
   int calculate(QQueue<QString>& expression);
   QQueue<QString> convert2ReversePolishNotation(const QString &expression);
 public:
-  explicit Calculate(QObject *parent = nullptr);
+  explicit Calculate(QLabel *_label, QObject *parent = nullptr);
 
   void addButton(QGridLayout *p_layout);
 
