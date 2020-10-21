@@ -7,6 +7,8 @@
 #include <QDebug>
 #include <QMap>
 #include <cmath>
+#include <QStack>
+#include <QQueue>
 
 class Calculate : public QObject
 {
@@ -17,10 +19,14 @@ private:
   QString operation;
   QString result;
   bool is_operation_possible;
-  QMap<QString, std::function<double(double, double)>> operation_function;
+  QMap<QString, std::function<int(int, int)>> operation_function;
 
   void addDigit(QString &number, const QString &input);
   void setColor(QPalette & palette, QColor & color, QPushButton & button, QChar symbol);
+
+  bool correctBracketSequence(const QString &expression);
+  int calculate(QQueue<QString>& expression);
+  QQueue<QString> convert2ReversePolishNotation(const QString &expression);
 public:
   explicit Calculate(QObject *parent = nullptr);
 

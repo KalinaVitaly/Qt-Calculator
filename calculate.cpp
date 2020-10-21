@@ -8,16 +8,16 @@ Calculate::Calculate(QObject *parent) :
   result("0"),
   is_operation_possible(false)
 {
-    operation_function["+"] = [](double a, double b) { return a + b; };
-    operation_function["-"] = [](double a, double b) { return a - b; };
-    operation_function["*"] = [](double a, double b) { return a * b; };
-    operation_function["/"] = [](double a, double b) { return a / b; };
-    operation_function["%"] = [](double a, double b) {
+    operation_function["+"] = [](int a, int b) { return a + b; };
+    operation_function["-"] = [](int a, int b) { return a - b; };
+    operation_function["*"] = [](int a, int b) { return a * b; };
+    operation_function["/"] = [](int a, int b) { return a / b; };
+    operation_function["%"] = [](int a, int b) {
         if (a == static_cast<int>(a) && b == static_cast<int>(b))
             return (double)(static_cast<int>(a) % static_cast<int>(b));
         return -1.0;
     };
-    operation_function["^"] = [](double a, double b) {
+    operation_function["^"] = [](int a, int b) {
         if (a == static_cast<int>(a) && b == static_cast<int>(b))
             return (double)(pow(static_cast<int>(a), static_cast<int>(b)));
         return -1.0;
@@ -146,4 +146,105 @@ void Calculate::addDigit(QString &number, const QString &input)
     if (number == "0")
         number = "";
     number.append(input);
+}
+
+
+bool Calculate::correctBracketSequence(const QString &expression)
+{
+   int brackets = 0;
+   for(auto i : expression)
+   {
+       if (i == "(")
+           ++brackets;
+       else if (i == ")") {
+          --brackets;
+           if (brackets < 0)
+               return false;
+       }
+   }
+   return true;
+}
+
+QQueue<QString> Calculate::convert2ReversePolishNotation(const QString &expression)
+{
+    QStack<QString> st;
+    QQueue<QString> q;
+    QMap<QString, int> priority_operation;
+    priority_operation["+"] = 1;
+    priority_operation["-"] = 1;
+    priority_operation["*"] = 2;
+    priority_operation["/"] = 2;
+
+    for (QChar i : expression)
+    {
+        if (i.isNumber())
+        {
+            q.push_back(i);
+        }
+        else if (i == '(')
+        {
+            st.push(i);
+        }
+        else if (i == ')')
+        {
+            while(st.top() != '(')
+            {
+                q.push_back(st.top());
+                st.pop();
+            }
+            st.pop();
+        }
+        else
+        {
+            if(st.empty() || st.top() == '(' || priority_operation[st.top()] < priority_operation[i])
+            {
+                st.push(i);
+            }
+            else
+            {
+                while(priority_operation[st.top()] >= priority_operation[i] && st.top() != '(')
+                {
+                    q.push_back(st.top());
+                    st.pop();
+
+                    if (st.empty())
+                        break;
+                }
+                st.push(i);
+            }
+        }
+    }
+
+    while(!st.empty())
+    {
+        q.push_back(st.top());
+        st.pop();
+    }
+
+    return q;
+}
+
+int Calculate::calculate(QQueue<QString>& expression)
+{
+    QStack<int> numbers;
+    int number1;
+    int number2;
+    auto oper_stack = [&numbers](int &number) {
+        number = numbers.top();
+        numbers.pop();
+    };
+
+    while(!expression.empty())
+    {
+        if ((expression.front().contains(QRegExp("\\d+")))) {
+            numbers.push((expression.front()).toInt());
+        }
+        else {
+            oper_stack(number2);
+            oper_stack(number1);
+            numbers.push((operation_function[expression.front()](number1, number2)));
+        }
+        expression.pop_front();
+    }
+    return numbers.top();
 }

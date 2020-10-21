@@ -27,10 +27,11 @@ int main(int argc, char *argv[])
   pallete.setColor(QPalette::WindowText, color);
   w->setPalette(pallete);
   w->setAutoFillBackground(true);
-
+ // label->setStyleSheet(QString("font-size: %1px").arg(100));
 
   QObject::connect(calc, SIGNAL(setNumber(const QString &)),
                    label, SLOT(setText(const QString &)));
+
 
   w->setLayout(layout);
   w->show();
