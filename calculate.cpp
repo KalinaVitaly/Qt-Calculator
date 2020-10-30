@@ -6,10 +6,10 @@ Calculate::Calculate(QLabel *_label, QObject *parent) :
   label(_label),
   is_operation_possible(false)
 {
-    operation_function["+"] = [](int a, int b) { return a + b; };
-    operation_function["-"] = [](int a, int b) { return a - b; };
-    operation_function["*"] = [](int a, int b) { return a * b; };
-    operation_function["/"] = [](int a, int b) { return a / b; };
+    operation_function["+"] = [](double a, double b) { return a + b; };
+    operation_function["-"] = [](double a, double b) { return a - b; };
+    operation_function["*"] = [](double a, double b) { return a * b; };
+    operation_function["/"] = [](double a, double b) { return a / b; };
 }
 
 
@@ -58,7 +58,7 @@ void Calculate::addButton(QGridLayout *p_layout)
 void Calculate::buttonClick()
 {
   QString input = ((QPushButton*)sender())->text();
-  int result;
+  double result;
 
   //добавить скобочки
   if (input <= '9' && input >= '0') {
@@ -72,6 +72,7 @@ void Calculate::buttonClick()
         //проверка на операнды
         QQueue<QString> expression = convert2ReversePolishNotation(label->text());
         result = calculate(expression);
+        qDebug() << result;
         current_expression.append("=" + QString::number(result));
     }
     else {
@@ -143,6 +144,8 @@ QQueue<QString> Calculate::convert2ReversePolishNotation(const QString &expressi
     QStack<QString> st;
     QQueue<QString> q;
     QMap<QString, int> priority_operation;
+    QString number("");
+    bool digits_in_row = false;
     priority_operation["+"] = 1;
     priority_operation["-"] = 1;
     priority_operation["*"] = 2;
@@ -150,59 +153,78 @@ QQueue<QString> Calculate::convert2ReversePolishNotation(const QString &expressi
 
     for (QChar i : expression)
     {
-        if (i.isNumber())
+        if (i.isNumber() || i == ".")
         {
-            q.push_back(i);
-        }
-        else if (i == '(')
-        {
-            st.push(i);
-        }
-        else if (i == ')')
-        {
-            while(st.top() != '(')
+            if (digits_in_row)
             {
-                q.push_back(st.top());
-                st.pop();
-            }
-            st.pop();
-        }
-        else
-        {
-            if(st.empty() || st.top() == '(' || priority_operation[st.top()] < priority_operation[i])
-            {
-                st.push(i);
+                number = q.back();
+                number.append(i);
+                q.pop_back();
+                q.push_back(number);
+                //qDebug() << number;
             }
             else
             {
-                while(priority_operation[st.top()] >= priority_operation[i] && st.top() != '(')
+                number = "";
+                q.push_back(i);
+                digits_in_row = true;
+            }
+        }
+        else
+        {
+            if (i == '(')
+            {
+                st.push(i);
+            }
+            else if (i == ')')
+            {
+                while(st.top() != '(')
                 {
                     q.push_back(st.top());
                     st.pop();
-
-                    if (st.empty())
-                        break;
                 }
-                st.push(i);
+                st.pop();
             }
+            else
+            {
+                if(st.empty() || st.top() == '(' || priority_operation[st.top()] < priority_operation[i])
+                {
+                    st.push(i);
+                }
+                else
+                {
+                    while(priority_operation[st.top()] >= priority_operation[i] && st.top() != '(')
+                    {
+                        q.push_back(st.top());
+                        st.pop();
+
+                        if (st.empty())
+                            break;
+                    }
+                    st.push(i);
+                }
+            }
+            digits_in_row = false;
         }
+
     }
 
     while(!st.empty())
     {
-        q.push_back(st.top());
+        number.append(st.top());
         st.pop();
     }
+    q.push_back(number);
 
     return q;
 }
 
-int Calculate::calculate(QQueue<QString>& expression)
+double Calculate::calculate(QQueue<QString>& expression)
 {
-    QStack<int> numbers;
-    int number1;
-    int number2;
-    auto oper_stack = [&numbers](int &number) {
+    QStack<double> numbers;
+    double number1;
+    double number2;
+    auto oper_stack = [&numbers](double &number) {
         number = numbers.top();
         numbers.pop();
     };
@@ -210,7 +232,7 @@ int Calculate::calculate(QQueue<QString>& expression)
     while(!expression.empty())
     {
         if ((expression.front().contains(QRegExp("\\d+")))) {
-            numbers.push((expression.front()).toInt());
+            numbers.push((expression.front()).toDouble());
         }
         else {
             oper_stack(number2);
@@ -222,64 +244,4 @@ int Calculate::calculate(QQueue<QString>& expression)
     return numbers.top();
 }
 
-/*
- * old calc version
- * save this code while new dont work
-*/
-//void Calculate::buttonClick()
-//{
-//  QString input = ((QPushButton*)sender())->text();
 
-//  if (input <= '9' && input >= '0') {
-//    QString &cur_number = is_operation_possible ? second_number : first_number;
-//    addDigit(cur_number, input);
-//    result = cur_number;
-//  }
-//  else if (input == '=') {
-//    if (is_operation_possible) {
-//        if (operation == "/" && second_number == "0") {
-//            first_number = "";
-//            second_number = "";
-//            result = "Error!";
-//        }
-//        else {
-//            result = QString::number(operation_function[operation](first_number.toDouble(), second_number.toDouble()));
-//            is_operation_possible = false;
-//            first_number = result;
-//            second_number = "0";
-
-//            if ((operation == "%" || operation == "^") && result == "-1")
-//            {
-//                result = "Invalid operation!";
-//                first_number = "";
-//            }
-//        }
-//    }
-//  }
-//  else if (input == 'C') {
-//    result = "0";
-//    first_number = "";
-//    second_number = "";
-//    is_operation_possible = false;
-//  }
-//  else if (input == "."){
-//      if (is_operation_possible) {
-//          if (!second_number.contains("."))
-//              second_number.append(".");
-//          result = second_number;
-//      }
-//      else {
-//          if (!first_number.contains("."))
-//              first_number.append(".");
-//          result = first_number;
-//      }
-//      qDebug() << result;
-//  }
-//  else {
-//    //operations
-//    operation = input;
-//    is_operation_possible = true;
-//    result = second_number;
-//  }
-//  emit setNumber(result);
-//}

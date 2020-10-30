@@ -17,14 +17,13 @@ class Calculate : public QObject
 private:
   QString current_expression;
   QLabel *label;
+  QMap<QString, std::function<double(double, double)>> operation_function;
   bool is_operation_possible;
-  QMap<QString, std::function<int(int, int)>> operation_function;
 
   void addDigit(QString &number, const QString &input);
   void setColor(QPalette & palette, QColor & color, QPushButton & button, QChar symbol);
-
   bool correctBracketSequence(const QString &expression);
-  int calculate(QQueue<QString>& expression);
+  double calculate(QQueue<QString>& expression);
   QQueue<QString> convert2ReversePolishNotation(const QString &expression);
 public:
   explicit Calculate(QLabel *_label, QObject *parent = nullptr);
