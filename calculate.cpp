@@ -2,10 +2,7 @@
 
 Calculate::Calculate(QLabel *_label, QObject *parent) :
   QObject(parent),
-  first_number("0"),
-  second_number("0"),
-  operation("0"),
-  result("0"),
+  current_expression("0"),
   label(_label),
   is_operation_possible(false)
 {
@@ -13,16 +10,6 @@ Calculate::Calculate(QLabel *_label, QObject *parent) :
     operation_function["-"] = [](int a, int b) { return a - b; };
     operation_function["*"] = [](int a, int b) { return a * b; };
     operation_function["/"] = [](int a, int b) { return a / b; };
-    operation_function["%"] = [](int a, int b) {
-        if (a == static_cast<int>(a) && b == static_cast<int>(b))
-            return (double)(static_cast<int>(a) % static_cast<int>(b));
-        return -1.0;
-    };
-    operation_function["^"] = [](int a, int b) {
-        if (a == static_cast<int>(a) && b == static_cast<int>(b))
-            return (double)(pow(static_cast<int>(a), static_cast<int>(b)));
-        return -1.0;
-    };
 }
 
 
@@ -31,8 +18,8 @@ void Calculate::addButton(QGridLayout *p_layout)
   QChar panel_symbols[] = { '1', '2', '3', 'C',
                             '4', '5', '6', '+',
                             '7', '8', '9', '-',
-                            '0', '.', '/', '^',
-                            '%', '*', '='};
+                            '0', '.', '/', '*',
+                            '(', ')', '='};
   int row;
   int column;
   int sizeX = 200;
@@ -48,12 +35,12 @@ void Calculate::addButton(QGridLayout *p_layout)
        column = i - row * 4;
        QPushButton *button = new QPushButton(panel_symbols[i]);
 
-       if (panel_symbols[i] == '=') {
-           p_layout->addWidget(button, row + 1, column, 1, 2);
-           sizeX = sizeX << 1;
+       if (panel_symbols[i] != '=') {
+           p_layout->addWidget(button, row + 1, column, 1, 1);
        }
        else {
-           p_layout->addWidget(button, row + 1, column, 1, 1);
+           p_layout->addWidget(button, row + 1, column, 1, 2);
+           sizeX = sizeX << 1;
        }
 
        setColor(palette, color, *button, panel_symbols[i]);
@@ -71,18 +58,21 @@ void Calculate::addButton(QGridLayout *p_layout)
 void Calculate::buttonClick()
 {
   QString input = ((QPushButton*)sender())->text();
-  QString output;
   int result;
 
   //добавить скобочки
   if (input <= '9' && input >= '0') {
-
+    if (current_expression.back() == "0")
+        current_expression[current_expression.size() - 1] = input[0];
+    else
+        current_expression.append(input);
   }
   else if (input == '=') {
     if (correctBracketSequence(label->text())) {
         //проверка на операнды
         QQueue<QString> expression = convert2ReversePolishNotation(label->text());
         result = calculate(expression);
+        current_expression.append("=" + QString::number(result));
     }
     else {
         /*
@@ -91,19 +81,21 @@ void Calculate::buttonClick()
     }
   }
   else if (input == 'C') {
-      output = "";
+      current_expression = "0";
   }
   else if (input == "."){
+      current_expression.append(".");
         //если вводится . без числа то уведомляем пользователя что ввод некорректен
         //если число есть то проверяем есть ли в нем точка если есть игнорируем если нет то добавляем
   }
   else {
+      current_expression.append(input);
         //operations
         //если знак вводится в пустую строку то ошибка уведомляем пользовотеля
         //если знак вводится после знака то ставим его вместо прошлого
         //после знака обязательно должно идти число
   }
- emit setNumber(output);
+ emit setNumber(current_expression);
 }
 
 void Calculate::setColor(QPalette & palette, QColor & color, QPushButton & button, QChar symbol)

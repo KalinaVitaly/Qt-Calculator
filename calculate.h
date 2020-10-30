@@ -15,10 +15,7 @@ class Calculate : public QObject
 {
   Q_OBJECT
 private:
-  QString first_number;
-  QString second_number;
-  QString operation;
-  QString result;
+  QString current_expression;
   QLabel *label;
   bool is_operation_possible;
   QMap<QString, std::function<int(int, int)>> operation_function;
