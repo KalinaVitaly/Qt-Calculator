@@ -18,11 +18,11 @@ private:
   QString current_expression;
   QLabel *label;
   QMap<QString, std::function<double(double, double)>> operation_function;
-  bool is_operation_possible;
 
   void addDigit(QString &number, const QString &input);
-  void setColor(QPalette & palette, QColor & color, QPushButton & button, QChar symbol);
+  void setColor(QPalette &palette, QColor & color, QPushButton & button, QChar symbol);
   bool correctBracketSequence(const QString &expression);
+  bool isOperation(const QChar &symbol) const;
   double calculate(QQueue<QString>& expression);
   QQueue<QString> convert2ReversePolishNotation(const QString &expression);
 public:

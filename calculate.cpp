@@ -6,8 +6,7 @@
 Calculate::Calculate(QLabel *_label, QObject *parent) :
   QObject(parent),
   current_expression("0"),
-  label(_label),
-  is_operation_possible(false)
+  label(_label)
 {
     operation_function["+"] = [](double a, double b) { return a + b; };
     operation_function["-"] = [](double a, double b) { return a - b; };
@@ -94,11 +93,22 @@ void Calculate::buttonClick()
         //если число есть то проверяем есть ли в нем точка если есть игнорируем если нет то добавляем
   }
   else {
-      current_expression.append(input);
-        //operations
-        //если знак вводится в пустую строку то ошибка уведомляем пользовотеля
-        //если знак вводится после знака то ставим его вместо прошлого
-        //после знака обязательно должно идти число
+      //operations
+      //если знак вводится в пустую строку то ошибка уведомляем пользовотеля
+      //если знак вводится после знака то ставим его вместо прошлого
+      //после знака обязательно должно идти число
+      if (!current_expression.size()) {
+          //ввели в пустую строку символ - ошибка
+          //ДОБАВИТЬ УВЕДОМЛЕНИЕ ПОЛЬЗОВОТЕЛЯ ОБ ЭТОМ
+
+      }
+      else if (isOperation(current_expression[current_expression.size() - 1])) {
+          //Если стоял знак и мы ввели знак снова то он ставится на место прошлого
+          current_expression[current_expression.size() - 1] = input[0]; //выполнить приведение к QChar
+      }
+      else{
+          current_expression.append(input);
+      }
   }
  emit setNumber(current_expression);
 }
@@ -127,7 +137,7 @@ bool Calculate::correctBracketSequence(const QString &expression)
        if (i == "(")
            ++brackets;
        else if (i == ")") {
-          --brackets;
+           --brackets;
            if (brackets < 0)
                return false;
        }
@@ -240,4 +250,10 @@ double Calculate::calculate(QQueue<QString>& expression)
     return numbers.top();
 }
 
-
+bool Calculate::isOperation(const QChar &symbol) const
+{
+    if (symbol == "+" || symbol == "-" ||
+        symbol == "*" || symbol == "/")
+        return true;
+    return false;
+}
