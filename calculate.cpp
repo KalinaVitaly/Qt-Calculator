@@ -1,5 +1,8 @@
 #include "calculate.h"
 
+#include <exception>
+#include <stdexcept>
+
 Calculate::Calculate(QLabel *_label, QObject *parent) :
   QObject(parent),
   current_expression("0"),
@@ -63,16 +66,17 @@ void Calculate::buttonClick()
   //добавить скобочки
   if (input <= '9' && input >= '0') {
     if (current_expression.back() == "0")
-        current_expression[current_expression.size() - 1] = input[0];
+        current_expression = input;
     else
         current_expression.append(input);
   }
   else if (input == '=') {
+    qDebug() << "Here!";
     if (correctBracketSequence(label->text())) {
         //проверка на операнды
         QQueue<QString> expression = convert2ReversePolishNotation(label->text());
-        result = calculate(expression);
-        qDebug() << result;
+        result = calculate(expression); //тут не работает  1+2*3
+        //qDebug() << result;
         current_expression.append("=" + QString::number(result));
     }
     else {
@@ -115,14 +119,6 @@ void Calculate::setColor(QPalette & palette, QColor & color, QPushButton & butto
     button.setPalette(palette);
 }
 
-void Calculate::addDigit(QString &number, const QString &input)
-{
-    if (number == "0")
-        number = "";
-    number.append(input);
-}
-
-
 bool Calculate::correctBracketSequence(const QString &expression)
 {
    int brackets = 0;
@@ -144,8 +140,8 @@ QQueue<QString> Calculate::convert2ReversePolishNotation(const QString &expressi
     QStack<QString> st;
     QQueue<QString> q;
     QMap<QString, int> priority_operation;
-    QString number("");
-    bool digits_in_row = false;
+    QString current_number("");
+    bool is_digits_successively = false;
     priority_operation["+"] = 1;
     priority_operation["-"] = 1;
     priority_operation["*"] = 2;
@@ -155,20 +151,14 @@ QQueue<QString> Calculate::convert2ReversePolishNotation(const QString &expressi
     {
         if (i.isNumber() || i == ".")
         {
-            if (digits_in_row)
-            {
-                number = q.back();
-                number.append(i);
+            current_number.append(i);
+            if(is_digits_successively) {
                 q.pop_back();
-                q.push_back(number);
-                //qDebug() << number;
             }
-            else
-            {
-                number = "";
-                q.push_back(i);
-                digits_in_row = true;
+            else {
+                is_digits_successively = true;
             }
+            q.push_back(current_number);
         }
         else
         {
@@ -204,18 +194,16 @@ QQueue<QString> Calculate::convert2ReversePolishNotation(const QString &expressi
                     st.push(i);
                 }
             }
-            digits_in_row = false;
+            is_digits_successively = false;
+            current_number = "";
         }
-
     }
 
     while(!st.empty())
     {
-        number.append(st.top());
+        q.push_back(st.top());
         st.pop();
     }
-    q.push_back(number);
-
     return q;
 }
 
@@ -231,13 +219,21 @@ double Calculate::calculate(QQueue<QString>& expression)
 
     while(!expression.empty())
     {
+        //qDebug() << expression.front() << " Stack size: " << numbers.size() << " Queue size: " << expression.size();
         if ((expression.front().contains(QRegExp("\\d+")))) {
             numbers.push((expression.front()).toDouble());
         }
         else {
             oper_stack(number2);
             oper_stack(number1);
-            numbers.push((operation_function[expression.front()](number1, number2)));
+            try {
+                //qDebug() << expression.front() << " " << number1 << " " << number2;
+                double result = (operation_function[expression.front()](number1, number2));
+                numbers.push(result);
+            } catch (std::exception &ex) {
+                qDebug() << ex.what();
+            }
+            //numbers.push((operation_function[expression.front()](number1, number2)));
         }
         expression.pop_front();
     }
