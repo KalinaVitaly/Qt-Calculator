@@ -75,7 +75,6 @@ void Calculate::buttonClick()
         //проверка на операнды
         QQueue<QString> expression = convert2ReversePolishNotation(label->text());
         result = calculate(expression); //тут не работает  1+2*3
-        //qDebug() << result;
         current_expression.append("=" + QString::number(result));
     }
     else {
@@ -88,9 +87,19 @@ void Calculate::buttonClick()
       current_expression = "0";
   }
   else if (input == "."){
-      current_expression.append(".");
-        //если вводится . без числа то уведомляем пользователя что ввод некорректен
-        //если число есть то проверяем есть ли в нем точка если есть игнорируем если нет то добавляем
+      //если вводится . без числа то уведомляем пользователя что ввод некорректен
+      //если число есть то проверяем есть ли в нем точка если есть игнорируем если нет то добавляем
+      if (!current_expression.size() && isOperation(current_expression[current_expression.size() - 1])) {
+          //введена точка после знака операции или в пустой строке - ошибка
+          //ДОБАВИТЬ УВЕДОМЛЕНИЕ ПОЛЬЗОВАТЕЛЯ О ТОМ ЧТО ВВОД НЕКОРРЕКТЕН
+      }
+      else if (current_expression.contains(QRegExp("[0-9]*[.][0-9]*$"))) {
+          qDebug() << "Contains";
+      }
+      else {
+          //Если нет точек в числе то просто добавляем в конец
+          current_expression.append(".");
+      }
   }
   else {
       //operations
@@ -229,7 +238,6 @@ double Calculate::calculate(QQueue<QString>& expression)
 
     while(!expression.empty())
     {
-        //qDebug() << expression.front() << " Stack size: " << numbers.size() << " Queue size: " << expression.size();
         if ((expression.front().contains(QRegExp("\\d+")))) {
             numbers.push((expression.front()).toDouble());
         }
@@ -237,13 +245,11 @@ double Calculate::calculate(QQueue<QString>& expression)
             oper_stack(number2);
             oper_stack(number1);
             try {
-                //qDebug() << expression.front() << " " << number1 << " " << number2;
                 double result = (operation_function[expression.front()](number1, number2));
                 numbers.push(result);
             } catch (std::exception &ex) {
                 qDebug() << ex.what();
             }
-            //numbers.push((operation_function[expression.front()](number1, number2)));
         }
         expression.pop_front();
     }
