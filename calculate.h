@@ -28,6 +28,7 @@ private:
 
   void clickEqualButton(double &result);
   void clickPointButton();
+  void clickDigitButton(const QString &input);
 public:
   explicit Calculate(QLabel *_label, QObject *parent = nullptr);
 

@@ -64,10 +64,7 @@ void Calculate::buttonClick()
 
   //добавить скобочки
   if (input <= '9' && input >= '0') {
-    if (current_expression.back() == "0")
-        current_expression = input;
-    else
-        current_expression.append(input);
+      clickDigitButton(input);
   }
   else if (input == '=') {
       clickEqualButton(result);
@@ -251,7 +248,7 @@ void Calculate::clickEqualButton(double &result)
     else if (correctBracketSequence(label->text())) {
         //проверка на операнды
         QQueue<QString> expression = convert2ReversePolishNotation(label->text());
-        result = calculate(expression); //тут не работает  1+2*3
+        result = calculate(expression);
         current_expression.append("=" + QString::number(result));
     }
     else {
@@ -279,3 +276,11 @@ void Calculate::clickPointButton()
         current_expression.append(".");
     }
 }
+
+  void Calculate::clickDigitButton(const QString &input)
+  {
+      if (current_expression.back() == "0")
+          current_expression = input;
+      else
+          current_expression.append(input);
+  }
