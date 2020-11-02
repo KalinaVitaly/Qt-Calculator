@@ -70,18 +70,7 @@ void Calculate::buttonClick()
         current_expression.append(input);
   }
   else if (input == '=') {
-    qDebug() << "Here!";
-    if (correctBracketSequence(label->text())) {
-        //проверка на операнды
-        QQueue<QString> expression = convert2ReversePolishNotation(label->text());
-        result = calculate(expression); //тут не работает  1+2*3
-        current_expression.append("=" + QString::number(result));
-    }
-    else {
-        /*
-         * скобочная последовательность не верна, извещаем пользователя об этом
-        */
-    }
+      clickEqualButton(result);
   }
   else if (input == 'C') {
       current_expression = "0";
@@ -89,17 +78,7 @@ void Calculate::buttonClick()
   else if (input == "."){
       //если вводится . без числа то уведомляем пользователя что ввод некорректен
       //если число есть то проверяем есть ли в нем точка если есть игнорируем если нет то добавляем
-      if (!current_expression.size() && isOperation(current_expression[current_expression.size() - 1])) {
-          //введена точка после знака операции или в пустой строке - ошибка
-          //ДОБАВИТЬ УВЕДОМЛЕНИЕ ПОЛЬЗОВАТЕЛЯ О ТОМ ЧТО ВВОД НЕКОРРЕКТЕН
-      }
-      else if (current_expression.contains(QRegExp("[0-9]*[.][0-9]*$"))) {
-          qDebug() << "Contains";
-      }
-      else {
-          //Если нет точек в числе то просто добавляем в конец
-          current_expression.append(".");
-      }
+      clickPointButton();
   }
   else {
       //operations
@@ -262,4 +241,41 @@ bool Calculate::isOperation(const QChar &symbol) const
         symbol == "*" || symbol == "/")
         return true;
     return false;
+}
+
+void Calculate::clickEqualButton(double &result)
+{
+    if (current_expression.contains("=")) {
+        current_expression = current_expression.right(current_expression.size() - 1 - current_expression.lastIndexOf(QChar('=')));
+    }
+    else if (correctBracketSequence(label->text())) {
+        //проверка на операнды
+        QQueue<QString> expression = convert2ReversePolishNotation(label->text());
+        result = calculate(expression); //тут не работает  1+2*3
+        current_expression.append("=" + QString::number(result));
+    }
+    else {
+        /*
+         * скобочная последовательность не верна, извещаем пользователя об этом
+        */
+    }
+}
+
+void Calculate::clickPointButton()
+{
+    if (!current_expression.size() || isOperation(current_expression[current_expression.size() - 1])) {
+        //введена точка после знака операции или в пустой строке - ошибка
+        //ДОБАВИТЬ УВЕДОМЛЕНИЕ ПОЛЬЗОВАТЕЛЯ О ТОМ ЧТО ВВОД НЕКОРРЕКТЕН
+    }
+    else if (current_expression.contains(QRegExp("[0-9]*[.][0-9]*$"))) {
+        //точка уже была введена
+        //при вводе меняем ее местоположение
+        int position = current_expression.lastIndexOf(QChar('.'));
+        current_expression.remove(position, 1);
+        current_expression.append(".");
+    }
+    else {
+        //Если нет точек в числе то просто добавляем в конец
+        current_expression.append(".");
+    }
 }
