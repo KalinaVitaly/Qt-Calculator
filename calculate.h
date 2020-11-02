@@ -25,7 +25,6 @@ private:
   bool isOperation(const QChar &symbol) const;
   double calculate(QQueue<QString>& expression);
   QQueue<QString> convert2ReversePolishNotation(const QString &expression);
-
   void clickEqualButton(double &result);
   void clickPointButton();
   void clickDigitButton(const QString &input);

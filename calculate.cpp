@@ -87,7 +87,7 @@ void Calculate::buttonClick()
           //ДОБАВИТЬ УВЕДОМЛЕНИЕ ПОЛЬЗОВОТЕЛЯ ОБ ЭТОМ
 
       }
-      else if (isOperation(current_expression[current_expression.size() - 1])) {
+      else if (isOperation(current_expression[current_expression.size() - 1]) && isOperation(input[0])) {
           //Если стоял знак и мы ввели знак снова то он ставится на место прошлого
           current_expression[current_expression.size() - 1] = input[0]; //выполнить приведение к QChar
       }
