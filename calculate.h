@@ -10,6 +10,8 @@
 #include <cmath>
 #include <QStack>
 #include <QQueue>
+#include <QListWidget>
+#include <QCheckBox>
 
 class Calculate : public QObject
 {
@@ -18,6 +20,7 @@ private:
   QString current_expression;
   QLabel *label;
   QMap<QString, std::function<double(double, double)>> operation_function;
+  QVector<QString> history_expression;
 
   void addDigit(QString &number, const QString &input);
   void setColor(QPalette &palette, QColor & color, QPushButton & button, QChar symbol);
@@ -28,6 +31,7 @@ private:
   void clickEqualButton(double &result);
   void clickPointButton();
   void clickDigitButton(const QString &input);
+  void clickOperationButton(const QString &input);
 public:
   explicit Calculate(QLabel *_label, QObject *parent = nullptr);
 

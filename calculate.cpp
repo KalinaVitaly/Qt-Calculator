@@ -30,6 +30,13 @@ void Calculate::addButton(QGridLayout *p_layout)
   QSizePolicy::Policy vertical = QSizePolicy::Minimum;
   QPalette palette;
   QColor color;
+//  QCheckBox *check_box_color = new QCheckBox("&Color");
+
+//  check_box_color->setMinimumSize(horiz, vertical);
+//  check_box_color->setMaximumSize(sizeX, sizeY);
+//  p_layout->addWidget(check_box_color, 1, 4, 1, 2);
+//  QObject::connect(check_box_color, SIGNAL())
+
 
   for(size_t i = 0; i < 19; ++i)
     {
@@ -63,39 +70,28 @@ void Calculate::buttonClick()
   double result;
 
   //добавить скобочки
-  if (input <= '9' && input >= '0') {
-      clickDigitButton(input);
-  }
-  else if (input == '=') {
-      clickEqualButton(result);
-  }
-  else if (input == 'C') {
-      current_expression = "0";
-  }
-  else if (input == "."){
+    if (input <= '9' && input >= '0') {
+        clickDigitButton(input);
+    }
+    else if (input == '=') {
+        clickEqualButton(result);
+    }
+    else if (input == 'C') {
+        current_expression = "0";
+    }
+    else if (input == "."){
       //если вводится . без числа то уведомляем пользователя что ввод некорректен
       //если число есть то проверяем есть ли в нем точка если есть игнорируем если нет то добавляем
       clickPointButton();
-  }
-  else {
+    }
+    else {
       //operations
       //если знак вводится в пустую строку то ошибка уведомляем пользовотеля
       //если знак вводится после знака то ставим его вместо прошлого
       //после знака обязательно должно идти число
-      if (!current_expression.size()) {
-          //ввели в пустую строку символ - ошибка
-          //ДОБАВИТЬ УВЕДОМЛЕНИЕ ПОЛЬЗОВОТЕЛЯ ОБ ЭТОМ
-
-      }
-      else if (isOperation(current_expression[current_expression.size() - 1]) && isOperation(input[0])) {
-          //Если стоял знак и мы ввели знак снова то он ставится на место прошлого
-          current_expression[current_expression.size() - 1] = input[0]; //выполнить приведение к QChar
-      }
-      else{
-          current_expression.append(input);
-      }
-  }
- emit setNumber(current_expression);
+      clickOperationButton(input);
+    }
+    emit setNumber(current_expression);
 }
 
 void Calculate::setColor(QPalette & palette, QColor & color, QPushButton & button, QChar symbol)
@@ -249,6 +245,8 @@ void Calculate::clickEqualButton(double &result)
         //проверка на операнды
         QQueue<QString> expression = convert2ReversePolishNotation(label->text());
         result = calculate(expression);
+        //добавляем пример в историю
+        history_expression.push_back(current_expression);
         current_expression.append("=" + QString::number(result));
     }
     else {
@@ -283,4 +281,19 @@ void Calculate::clickPointButton()
           current_expression = input;
       else
           current_expression.append(input);
+  }
+
+  void Calculate::clickOperationButton(const QString &input)
+  {
+      if (!current_expression.size()) {
+          //ввели в пустую строку символ - ошибка
+          //ДОБАВИТЬ УВЕДОМЛЕНИЕ ПОЛЬЗОВОТЕЛЯ ОБ ЭТОМ
+      }
+      else if (isOperation(current_expression[current_expression.size() - 1]) && isOperation(input[0])) {
+          //Если стоял знак и мы ввели знак снова то он ставится на место прошлого
+          current_expression[current_expression.size() - 1] = input[0]; //выполнить приведение к QChar
+      }
+      else{
+          current_expression.append(input);
+      }
   }
