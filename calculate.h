@@ -21,9 +21,10 @@ private:
   QLabel *label;
   QMap<QString, std::function<double(double, double)>> operation_function;
   QVector<QString> history_expression;
+  QVector<QPushButton *> buttons;      //указатели на кнопки
 
   void addDigit(QString &number, const QString &input);
-  void setColor(QPalette &palette, QColor & color, QPushButton & button, QChar symbol);
+  void setColor(QPushButton &button, QChar symbol, bool theme);
   bool correctBracketSequence(const QString &expression);
   bool isOperation(const QChar &symbol) const;
   double calculate(QQueue<QString>& expression);
@@ -41,6 +42,7 @@ signals:
   void setNumber(const QString &);
 public slots:
   void buttonClick();
+  void changeTheme(int flag);
 };
 
 #endif // CALCULATE_H

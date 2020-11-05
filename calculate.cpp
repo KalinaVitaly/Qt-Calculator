@@ -28,15 +28,6 @@ void Calculate::addButton(QGridLayout *p_layout)
   int sizeY = 200;
   QSizePolicy::Policy horiz = QSizePolicy::Minimum;
   QSizePolicy::Policy vertical = QSizePolicy::Minimum;
-  QPalette palette;
-  QColor color;
-//  QCheckBox *check_box_color = new QCheckBox("&Color");
-
-//  check_box_color->setMinimumSize(horiz, vertical);
-//  check_box_color->setMaximumSize(sizeX, sizeY);
-//  p_layout->addWidget(check_box_color, 1, 4, 1, 2);
-//  QObject::connect(check_box_color, SIGNAL())
-
 
   for(size_t i = 0; i < 19; ++i)
     {
@@ -52,7 +43,7 @@ void Calculate::addButton(QGridLayout *p_layout)
            sizeX = sizeX << 1;
        }
 
-       setColor(palette, color, *button, panel_symbols[i]);
+       setColor(*button, panel_symbols[i], false);
        button->setMaximumSize(sizeX, sizeY);
        button->setSizePolicy(horiz, vertical);
        p_layout->setSpacing(0);
@@ -61,6 +52,7 @@ void Calculate::addButton(QGridLayout *p_layout)
                         this, SLOT(buttonClick()));
 
        button->setAutoFillBackground(true);
+       buttons.push_back(button);
     }
 }
 
@@ -94,19 +86,35 @@ void Calculate::buttonClick()
     emit setNumber(current_expression);
 }
 
-void Calculate::setColor(QPalette & palette, QColor & color, QPushButton & button, QChar symbol)
+void Calculate::setColor(QPushButton &button, QChar symbol, bool theme)
 {
-    int rgb_color_button[3];
-    if (symbol.isNumber() || symbol == ".") {
-        rgb_color_button[0] = rgb_color_button[1] = rgb_color_button[2] = 51;
+    QPalette palette;
+    QColor color_button;
+    QColor color_font;
+
+    if (theme) {
+        if (symbol.isNumber() || symbol == ".") {
+            color_button.setRgb(51, 51, 51);
+        }
+        else {
+            color_button.setRgb(235, 132, 53);
+        }
+        color_font.setRgb(254, 254, 254);
     }
     else {
-        rgb_color_button[0] = 235, rgb_color_button[1] = 132, rgb_color_button[2] = 53;
+        //white theme
+        if (symbol.isNumber() || symbol == ".") {
+            color_button.setRgb(255, 255, 255);
+            color_font.setRgb(54, 54, 54);
+        }
+        else {
+            color_button.setRgb(63, 81, 181);
+            color_font.setRgb(254, 254, 254);
+        }
     }
-    color.setRgb(rgb_color_button[0], rgb_color_button[1], rgb_color_button[2]);
-    palette.setColor(QPalette::Button, color);
-    color.setRgb(254, 254, 254);
-    palette.setColor(QPalette::ButtonText, color);
+
+    palette.setColor(QPalette::Button, color_button);
+    palette.setColor(QPalette::ButtonText, color_font);
     button.setPalette(palette);
 }
 
@@ -297,3 +305,12 @@ void Calculate::clickPointButton()
           current_expression.append(input);
       }
   }
+
+
+void Calculate::changeTheme(int flag)
+{
+    for (auto i : buttons)
+    {
+        setColor(*i, i->text()[0], flag);
+    }
+}
