@@ -3,11 +3,13 @@
 #include <exception>
 #include <stdexcept>
 
-Calculate::Calculate(QLabel *_label, QObject *parent) :
+Calculate::Calculate(QLabel *_label, QGridLayout *_grid_layout, QObject *parent) :
   QObject(parent),
   current_expression("0"),
-  label(_label)
+  label(_label),
+  grid_layout(_grid_layout)
 {
+    cb_expression = new QComboBox();
     operation_function["+"] = [](double a, double b) { return a + b; };
     operation_function["-"] = [](double a, double b) { return a - b; };
     operation_function["*"] = [](double a, double b) { return a * b; };
@@ -15,7 +17,7 @@ Calculate::Calculate(QLabel *_label, QObject *parent) :
 }
 
 
-void Calculate::addButton(QGridLayout *p_layout)
+void Calculate::addButton()
 {
   QChar panel_symbols[] = { '1', '2', '3', 'C',
                             '4', '5', '6', '+',
@@ -28,6 +30,9 @@ void Calculate::addButton(QGridLayout *p_layout)
   int sizeY = 200;
   QSizePolicy::Policy horiz = QSizePolicy::Minimum;
   QSizePolicy::Policy vertical = QSizePolicy::Minimum;
+  grid_layout->addWidget(cb_expression, 2, 4, 1, 2);
+  QObject::connect(cb_expression, SIGNAL(currentTextChanged(const QString &)),
+                   label, SLOT(setText(const QString &)));
 
   for(size_t i = 0; i < 19; ++i)
     {
@@ -36,18 +41,18 @@ void Calculate::addButton(QGridLayout *p_layout)
        QPushButton *button = new QPushButton(panel_symbols[i]);
 
        if (panel_symbols[i] != '=') {
-           p_layout->addWidget(button, row + 1, column, 1, 1);
+           grid_layout->addWidget(button, row + 1, column, 1, 1);
        }
        else {
-           p_layout->addWidget(button, row + 1, column, 1, 2);
+           grid_layout->addWidget(button, row + 1, column, 1, 2);
            sizeX = sizeX << 1;
        }
 
-       setColor(*button, panel_symbols[i], false);
+       setColor(*button, panel_symbols[i], true);
        button->setMaximumSize(sizeX, sizeY);
        button->setSizePolicy(horiz, vertical);
-       p_layout->setSpacing(0);
-       p_layout->setMargin(0);
+       grid_layout->setSpacing(0);
+       grid_layout->setMargin(0);
        QObject::connect(button, SIGNAL(clicked()),
                         this, SLOT(buttonClick()));
 
@@ -254,7 +259,8 @@ void Calculate::clickEqualButton(double &result)
         QQueue<QString> expression = convert2ReversePolishNotation(label->text());
         result = calculate(expression);
         //добавляем пример в историю
-        history_expression.push_back(current_expression);
+        //history_expression.push_back(current_expression);
+        cb_expression->addItem(current_expression);
         current_expression.append("=" + QString::number(result));
     }
     else {

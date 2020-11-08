@@ -11,7 +11,7 @@
 #include <QStack>
 #include <QQueue>
 #include <QComboBox>
-#include <QCheckBox>
+#include <QGridLayout>
 
 class Calculate : public QObject
 {
@@ -20,7 +20,9 @@ private:
   QString current_expression;
   QLabel *label;
   QMap<QString, std::function<double(double, double)>> operation_function;
-  QStringList history_expression;
+  //QStringList history_expression;
+  QGridLayout *grid_layout;
+  QComboBox *cb_expression;
   QVector<QPushButton *> buttons;      //указатели на кнопки
 
   void addDigit(QString &number, const QString &input);
@@ -34,9 +36,9 @@ private:
   void clickDigitButton(const QString &input);
   void clickOperationButton(const QString &input);
 public:
-  explicit Calculate(QLabel *_label, QObject *parent = nullptr);
+  explicit Calculate(QLabel *_label, QGridLayout *_grid_layout, QObject *parent = nullptr);
 
-  void addButton(QGridLayout *p_layout);
+  void addButton();
 
 signals:
   void setNumber(const QString &);

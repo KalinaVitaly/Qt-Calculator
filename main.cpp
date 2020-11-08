@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
   QFrame *w = new QFrame();
   QGridLayout *layout = new QGridLayout();
   QLabel *label = new QLabel;
-  Calculate *calc = new Calculate(label);
+  Calculate *calc = new Calculate(label,layout);
   QCursor cursor(Qt::PointingHandCursor);
   QPalette pallete;
   QColor color;
@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
   //w->setFrameStyle(QFrame::Plain | QFrame::HLine);
   //w->setLineWidth(2);
   layout->addWidget(label, 0, 0, 1, 4);
-  calc->addButton(layout);
+  calc->addButton();
   label->setText("0");
   label->setAlignment(Qt::AlignRight);
   w->setCursor(cursor);
