@@ -40,7 +40,8 @@ int main(int argc, char *argv[])
 
   QObject::connect(calc, SIGNAL(setNumber(const QString &)),
                    label, SLOT(setText(const QString &)));
-
+  QObject::connect(cb, SIGNAL(checkBoxChange(int)),
+                   calc, SLOT(changeTheme(int)));
 
   w->setLayout(layout);
   w->show();

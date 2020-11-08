@@ -10,7 +10,7 @@
 #include <cmath>
 #include <QStack>
 #include <QQueue>
-#include <QListWidget>
+#include <QComboBox>
 #include <QCheckBox>
 
 class Calculate : public QObject
@@ -20,7 +20,7 @@ private:
   QString current_expression;
   QLabel *label;
   QMap<QString, std::function<double(double, double)>> operation_function;
-  QVector<QString> history_expression;
+  QStringList history_expression;
   QVector<QPushButton *> buttons;      //указатели на кнопки
 
   void addDigit(QString &number, const QString &input);

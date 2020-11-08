@@ -12,9 +12,12 @@ Checkbox::Checkbox(QWidget *parent)
 
 void Checkbox::showTitle(int state)
 {
-    qDebug() << "Work";
-    if (state == Qt::Checked)
+    if (state == Qt::Checked) {
         window->setWindowTitle("black theme");
-    else
+        emit checkBoxChange(true);
+    }
+    else {
         window->setWindowTitle("white theme");
+        emit checkBoxChange(false);
+    }
 }

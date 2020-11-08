@@ -16,6 +16,9 @@ public:
 
 private slots:
     void showTitle(int);
+
+signals:
+    void checkBoxChange(int flag);
 };
 
 #endif // CHECKBOX_H
