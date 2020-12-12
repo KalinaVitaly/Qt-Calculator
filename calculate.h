@@ -18,33 +18,15 @@ class Calculate : public QObject
   Q_OBJECT
 private:
   QString current_expression;
-  QLabel *label;
   QMap<QString, std::function<double(double, double)>> operation_function;
-  //QStringList history_expression;
-  QGridLayout *grid_layout;
-  QComboBox *cb_expression;
-  QVector<QPushButton *> buttons;      //указатели на кнопки
 
   void addDigit(QString &number, const QString &input);
-  void setColor(QPushButton &button, QChar symbol, bool theme);
   bool correctBracketSequence(const QString &expression);
-  bool isOperation(const QChar &symbol) const;
   double calculate(QQueue<QString>& expression);
   QQueue<QString> convert2ReversePolishNotation(const QString &expression);
-  void clickEqualButton(double &result);
-  void clickPointButton();
-  void clickDigitButton(const QString &input);
-  void clickOperationButton(const QString &input);
+
 public:
-  explicit Calculate(QLabel *_label, QGridLayout *_grid_layout, QObject *parent = nullptr);
-
-  void addButton();
-
-signals:
-  void setNumber(const QString &);
-public slots:
-  void buttonClick();
-  void changeTheme(int flag);
+  explicit Calculate(QObject *parent = nullptr);
 };
 
 #endif // CALCULATE_H

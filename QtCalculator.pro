@@ -16,11 +16,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    ButtonsWidget.cpp \
+    MainWindow.cpp \
     calculate.cpp \
     checkbox.cpp \
     main.cpp
 
 HEADERS += \
+    ButtonsWidget.h \
+    MainWindow.h \
     calculate.h \
     checkbox.h
 
