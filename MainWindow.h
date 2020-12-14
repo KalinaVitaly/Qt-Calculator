@@ -16,6 +16,9 @@ private:
     QLabel *result_output;
 public:
     MainWindow(QWidget *parent = nullptr);
+
+private slots:
+    void setExpression(const QString &text);
 };
 
 #endif // MAINWINDOW_H

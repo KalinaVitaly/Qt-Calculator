@@ -11,7 +11,14 @@ MainWindow::MainWindow(QWidget *parent) :
                                  "border : 1px solid gray;"\
                                  "font-size : 20px;");
 
+    connect(buttons, &ButtonsWidget::setNumber,
+            this, &MainWindow::setExpression);
+
     vl->addWidget(result_output, 0);
     vl->addWidget(buttons, 0);
     this->setFixedSize(380, 440);
+}
+
+void MainWindow::setExpression(const QString &text) {
+    result_output->setText(text);
 }

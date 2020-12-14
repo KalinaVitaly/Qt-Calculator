@@ -27,6 +27,11 @@ private:
 
 public:
   explicit Calculate(QObject *parent = nullptr);
+
+signals:
+  void setResult(const QString &expression);
+public slots:
+  void calculateExpression(const QString &expression);
 };
 
 #endif // CALCULATE_H

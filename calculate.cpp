@@ -2,6 +2,7 @@
 
 #include <exception>
 #include <stdexcept>
+#include <QDebug>
 
 Calculate::Calculate(QObject *parent) :
   QObject(parent),
@@ -13,20 +14,11 @@ Calculate::Calculate(QObject *parent) :
     operation_function["/"] = [](double a, double b) { return a / b; };
 }
 
-bool Calculate::correctBracketSequence(const QString &expression)
-{
-   int brackets = 0;
-   for(auto i : expression)
-   {
-       if (i == "(")
-           ++brackets;
-       else if (i == ")") {
-           --brackets;
-           if (brackets < 0)
-               return false;
-       }
-   }
-   return true;
+void Calculate::calculateExpression(const QString &expression) {
+    QQueue<QString> expression_parts = convert2ReversePolishNotation(expression);
+    double result = calculate(expression_parts);
+    qDebug() << result;
+    emit setResult(QString::number(result));
 }
 
 QQueue<QString> Calculate::convert2ReversePolishNotation(const QString &expression)

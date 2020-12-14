@@ -5,6 +5,7 @@ ButtonsWidget::ButtonsWidget(QWidget * parent) :
     panel_symbols(19)
 {
     gl_buttons = new QGridLayout(this);
+    calc = new Calculate;
     panel_symbols = { '1', '2', '3', 'C',
                       '4', '5', '6', '+',
                       '7', '8', '9', '-',
@@ -12,6 +13,31 @@ ButtonsWidget::ButtonsWidget(QWidget * parent) :
                       '(', ')', '='};
     setButtonsParams();
     this->setFixedSize(QSize(350, 400));
+
+    connect(this, &ButtonsWidget::clickedEquals,
+            calc, &Calculate::calculateExpression);
+    connect(calc, &Calculate::setResult,
+            this, &ButtonsWidget::setResult);
+}
+
+void ButtonsWidget::setResult(const QString & result) {
+    current_expression.append("=" + result);
+}
+
+bool ButtonsWidget::correctBracketSequence(const QString &expression)
+{
+   int brackets = 0;
+   for(auto i : expression)
+   {
+       if (i == "(")
+           ++brackets;
+       else if (i == ")") {
+           --brackets;
+           if (brackets < 0)
+               return false;
+       }
+   }
+   return true;
 }
 
 void ButtonsWidget::clickEqualButton(double &result)
@@ -19,15 +45,9 @@ void ButtonsWidget::clickEqualButton(double &result)
     if (current_expression.contains("=")) {
         current_expression = current_expression.right(current_expression.size() - 1 - current_expression.lastIndexOf(QChar('=')));
     }
-    //    else if (correctBracketSequence(label->text())) {
-    //        //проверка на операнды
-    //        QQueue<QString> expression = convert2ReversePolishNotation(label->text());
-    //        result = calculate(expression);
-    //        //добавляем пример в историю
-    //        //history_expression.push_back(current_expression);
-    //        cb_expression->addItem(current_expression);
-    //        current_expression.append("=" + QString::number(result));
-    //    }
+        else if (correctBracketSequence(current_expression)) {
+            emit clickedEquals(current_expression);
+        }
     else {
         /*
          * скобочная последовательность не верна, извещаем пользователя об этом
@@ -60,6 +80,7 @@ void ButtonsWidget::clickPointButton()
         //Если нет точек в числе то просто добавляем в конец
         current_expression.append(".");
     }
+    emit setNumber(current_expression);
 }
 
 void ButtonsWidget::clickDigitButton(const QString &input) {
@@ -67,6 +88,7 @@ void ButtonsWidget::clickDigitButton(const QString &input) {
         current_expression = input;
     else
         current_expression.append(input);
+    emit setNumber(current_expression);
 }
 
 void ButtonsWidget::clickOperationButton(const QString &input) {
@@ -81,6 +103,7 @@ void ButtonsWidget::clickOperationButton(const QString &input) {
     else{
         current_expression.append(input);
     }
+    emit setNumber(current_expression);
 }
 
 
@@ -136,7 +159,7 @@ void ButtonsWidget::setButtonsParams() {
              sizeX = sizeX << 1;
          }
 
-         setButtonColor(*button, panel_symbols[i], true);
+         setButtonColor(*button, panel_symbols[i]);
          button->setMaximumSize(sizeX, sizeY);
          button->setSizePolicy(horiz, vertical);
          gl_buttons->setSpacing(0);
@@ -150,7 +173,7 @@ void ButtonsWidget::setButtonsParams() {
       }
 }
 
-void ButtonsWidget::setButtonColor(QPushButton &button, QChar symbol, bool theme)
+void ButtonsWidget::setButtonColor(QPushButton &button, QChar symbol)
 {
     if (symbol.isNumber()) {
         button.setStyleSheet("QPushButton {"\
