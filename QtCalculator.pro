@@ -19,14 +19,12 @@ SOURCES += \
     ButtonsWidget.cpp \
     MainWindow.cpp \
     calculate.cpp \
-    checkbox.cpp \
     main.cpp
 
 HEADERS += \
     ButtonsWidget.h \
     MainWindow.h \
-    calculate.h \
-    checkbox.h
+    calculate.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

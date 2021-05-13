@@ -6,7 +6,6 @@
 #include "MainWindow.h"
 //QListWidget для списка из QString
 #include <QCursor>
-#include "checkbox.h"
 
 int main(int argc, char *argv[])
 {

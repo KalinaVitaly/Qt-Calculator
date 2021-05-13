@@ -2,7 +2,8 @@
 
 ButtonsWidget::ButtonsWidget(QWidget * parent) :
     QWidget(parent),
-    panel_symbols(19)
+    panel_symbols(19),
+    current_expression("0")
 {
     gl_buttons = new QGridLayout(this);
     calc = new Calculate;
@@ -26,18 +27,18 @@ void ButtonsWidget::setResult(const QString & result) {
 
 bool ButtonsWidget::correctBracketSequence(const QString &expression)
 {
-   int brackets = 0;
-   for(auto i : expression)
-   {
-       if (i == "(")
-           ++brackets;
-       else if (i == ")") {
-           --brackets;
-           if (brackets < 0)
-               return false;
-       }
-   }
-   return true;
+    int brackets = 0;
+    for(auto i : expression)
+    {
+        if (i == "(")
+            ++brackets;
+        else if (i == ")") {
+            --brackets;
+            if (brackets < 0)
+                return false;
+        }
+    }
+    return true;
 }
 
 void ButtonsWidget::clickEqualButton(double &result)
@@ -45,9 +46,9 @@ void ButtonsWidget::clickEqualButton(double &result)
     if (current_expression.contains("=")) {
         current_expression = current_expression.right(current_expression.size() - 1 - current_expression.lastIndexOf(QChar('=')));
     }
-        else if (correctBracketSequence(current_expression)) {
-            emit clickedEquals(current_expression);
-        }
+    else if (correctBracketSequence(current_expression)) {
+        emit clickedEquals(current_expression);
+    }
     else {
         /*
          * скобочная последовательность не верна, извещаем пользователя об этом
@@ -58,14 +59,14 @@ void ButtonsWidget::clickEqualButton(double &result)
 bool ButtonsWidget::isOperation(const QChar &symbol) const
 {
     if (symbol == "+" || symbol == "-" ||
-        symbol == "*" || symbol == "/")
+            symbol == "*" || symbol == "/")
         return true;
     return false;
 }
 
 void ButtonsWidget::clickPointButton()
 {
-    if (!current_expression.size() || isOperation(current_expression[current_expression.size() - 1])) {
+    if (current_expression.isEmpty() || isOperation(current_expression[current_expression.size() - 1])) {
         //введена точка после знака операции или в пустой строке - ошибка
         //ДОБАВИТЬ УВЕДОМЛЕНИЕ ПОЛЬЗОВАТЕЛЯ О ТОМ ЧТО ВВОД НЕКОРРЕКТЕН
     }
@@ -84,10 +85,13 @@ void ButtonsWidget::clickPointButton()
 }
 
 void ButtonsWidget::clickDigitButton(const QString &input) {
+    qDebug() << "In click digit button " << current_expression;
     if (current_expression.back() == "0")
         current_expression = input;
     else
         current_expression.append(input);
+
+    qDebug() << "click digit button " << current_expression;
     emit setNumber(current_expression);
 }
 
@@ -109,32 +113,33 @@ void ButtonsWidget::clickOperationButton(const QString &input) {
 
 void ButtonsWidget::buttonClick()
 {
-  QString input = ((QPushButton*)sender())->text();
-  double result;
-
-  //добавить скобочки
-  if (input <= '9' && input >= '0') {
-      clickDigitButton(input);
-  }
-  else if (input == '=') {
-      clickEqualButton(result);
-  }
-  else if (input == 'C') {
-      current_expression = "0";
-  }
-  else if (input == "."){
-    //если вводится . без числа то уведомляем пользователя что ввод некорректен
-    //если число есть то проверяем есть ли в нем точка если есть игнорируем если нет то добавляем
-    clickPointButton();
-  }
-  else {
-    //operations
-    //если знак вводится в пустую строку то ошибка уведомляем пользовотеля
-    //если знак вводится после знака то ставим его вместо прошлого
-    //после знака обязательно должно идти число
-    clickOperationButton(input);
-  }
-  emit setNumber(current_expression);
+    QString input = ((QPushButton*)sender())->text();
+    double result;
+    qDebug() << "Button click";
+    //добавить скобочки
+    if (input <= '9' && input >= '0') {
+        qDebug() << "Digit button click " << input;
+        clickDigitButton(input);
+    }
+    else if (input == '=') {
+        clickEqualButton(result);
+    }
+    else if (input == 'C') {
+        current_expression = "0";
+    }
+    else if (input == "."){
+        //если вводится . без числа то уведомляем пользователя что ввод некорректен
+        //если число есть то проверяем есть ли в нем точка если есть игнорируем если нет то добавляем
+        clickPointButton();
+    }
+    else {
+        //operations
+        //если знак вводится в пустую строку то ошибка уведомляем пользовотеля
+        //если знак вводится после знака то ставим его вместо прошлого
+        //после знака обязательно должно идти число
+        clickOperationButton(input);
+    }
+    emit setNumber(current_expression);
 }
 
 void ButtonsWidget::setButtonsParams() {
@@ -146,31 +151,31 @@ void ButtonsWidget::setButtonsParams() {
     QSizePolicy::Policy vertical = QSizePolicy::Minimum;
 
     for(size_t i = 0; i < 19; ++i)
-      {
-         row = i / 4;
-         column = i - row * 4;
-         QPushButton *button = new QPushButton(panel_symbols[i]);
+    {
+        row = i / 4;
+        column = i - row * 4;
+        QPushButton *button = new QPushButton(panel_symbols[i]);
 
-         if (panel_symbols[i] != '=') {
-             gl_buttons->addWidget(button, row + 1, column, 1, 1);
-         }
-         else {
-             gl_buttons->addWidget(button, row + 1, column, 1, 2);
-             sizeX = sizeX << 1;
-         }
+        if (panel_symbols[i] != '=') {
+            gl_buttons->addWidget(button, row + 1, column, 1, 1);
+        }
+        else {
+            gl_buttons->addWidget(button, row + 1, column, 1, 2);
+            sizeX = sizeX << 1;
+        }
 
-         setButtonColor(*button, panel_symbols[i]);
-         button->setMaximumSize(sizeX, sizeY);
-         button->setSizePolicy(horiz, vertical);
-         gl_buttons->setSpacing(0);
-         gl_buttons->setMargin(0);
+        setButtonColor(*button, panel_symbols[i]);
+        button->setMaximumSize(sizeX, sizeY);
+        button->setSizePolicy(horiz, vertical);
+        gl_buttons->setSpacing(0);
+        gl_buttons->setMargin(0);
 
-         QObject::connect(button, SIGNAL(clicked()),
-                          this, SLOT(buttonClick()));
+        QObject::connect(button, SIGNAL(clicked()),
+                         this, SLOT(buttonClick()));
 
-         button->setAutoFillBackground(true);
-         buttons.push_back(button);
-      }
+        button->setAutoFillBackground(true);
+        buttons.push_back(button);
+    }
 }
 
 void ButtonsWidget::setButtonColor(QPushButton &button, QChar symbol)

@@ -20,5 +20,6 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 void MainWindow::setExpression(const QString &text) {
+    qDebug("Set expression");
     result_output->setText(text);
 }
